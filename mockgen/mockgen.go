@@ -67,6 +67,7 @@ var (
 	buildConstraint        = flag.String("build_constraint", "", "If non-empty, added as //go:build <constraint>")
 	typed                  = flag.Bool("typed", false, "Generate Type-safe 'Return', 'Do', 'DoAndReturn' function")
 	imports                = flag.String("imports", "", "(source mode) Comma-separated name=path pairs of explicit imports to use.")
+	importsOverrides       = flag.String("imports_overrides", "", "(source mode) Comma-separated name=path pairs of imports to override.")
 	auxFiles               = flag.String("aux_files", "", "(source mode) Comma-separated pkg=path pairs of auxiliary Go source files.")
 	excludeInterfaces      = flag.String("exclude_interfaces", "", "(source mode) Comma-separated names of interfaces to be excluded")
 	modelGob               = flag.String("model_gob", "", "Skip package/source loading entirely and use the gob encoded model.Package at the given path")
@@ -263,7 +264,8 @@ type generator struct {
 	copyrightHeader           string
 	buildConstraint           string // may be empty
 
-	packageMap map[string]string // map from import path to package name
+	packageMap         map[string]string // map from import path to package name
+	overridePackageMap map[string]string
 }
 
 func (g *generator) p(format string, args ...any) {
@@ -374,6 +376,16 @@ func (g *generator) Generate(pkg *model.Package, outputPkgName string, outputPac
 			eq := strings.Index(kv, "=")
 			if k, v := kv[:eq], kv[eq+1:]; k != "." {
 				definedImports[v] = k
+			}
+		}
+	}
+
+	definedImportsOverrides := make(map[string]string, len(definedImports))
+	if *importsOverrides != "" {
+		for _, kv := range strings.Split(*importsOverrides, ",") {
+			eq := strings.Index(kv, "=")
+			if k, v := kv[:eq], kv[eq+1:]; k != "." {
+				definedImportsOverrides[v] = k
 			}
 		}
 	}

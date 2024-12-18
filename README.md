@@ -91,6 +91,8 @@ It supports the following flags:
   `foo=bar/baz`, where `bar/baz` is the package being imported and `foo` is
   the identifier to use for the package in the generated source code.
 
+- `-imports_overrides`: TODO
+
 - `-aux_files`: A list of additional files that should be consulted to
   resolve e.g. embedded interfaces defined in a different file. This is
   specified as a comma-separated list of elements of the form
